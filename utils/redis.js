@@ -3,15 +3,16 @@ import redis from 'redis';
 class RedisClient {
   constructor() {
     this.client = redis.createClient();
+    this.client.connected = true;
     this.client.on('error', (err) => {
+      this.client.connected = false;
       console.error(err);
     });
   }
 
   isAlive() {
     try {
-      this.client.ping();
-      return true;
+      return this.client.connected;
     } catch (err) {
       return false;
     }
