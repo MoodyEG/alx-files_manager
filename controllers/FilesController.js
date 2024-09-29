@@ -182,13 +182,15 @@ export default class FilesController {
     if (!file) {
       return res.status(404).send({ error: 'Not found' });
     }
+
+    if (!file.isPublic && (!userId || file.userId.toString() !== userId.toString())) {
+      return res.status(404).send({ error: 'Not found' });
+    }
     if (file.type === 'folder') {
       return res.status(400).send({ error: 'A folder doesn t have content' });
     }
-    if (!file.isPublic && (!userId || file.userId.toHexString() !== userId)) {
-      return res.status(404).send({ error: 'Not found' });
-    }
-    if (!file.localPath) {
+    const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
+    if (!file.localPath || !fileExist) {
       return res.status(404).send({ error: 'Not found' });
     }
     const type = mime.lookup(file.name);
