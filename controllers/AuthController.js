@@ -9,13 +9,16 @@ export default class AuthController {
   static async getConnect(req, res) {
     try {
       const [email, password] = Buffer.from(req.headers.authorization.split(' ')[1], 'base64').toString().split(':');
+      if (!email || !password) {
+        return res.status(401).send({ error: 'Unauthorized' });
+      }
       const user = await dbClient.dataClient.db().collection('users').findOne({ email });
       if (!user || crypto.createHash('sha1').update(password).digest('hex') !== user.password) {
         return res.status(401).send({ error: 'Unauthorized' });
       }
       const token = uuidv4();
-      await redisClient.client.setex(`auth_${token}`, 24 * 60 * 60, user._id);
-      return res.send({ token });
+      await redisClient.client.setex(`auth_${token}`, 24 * 60 * 60, user._id.toString());
+      return res.status(200).json({ token });
     } catch (err) {
       console.error(err);
       return res.status(500).send({ error: 'Internal Server Error' });
@@ -25,6 +28,9 @@ export default class AuthController {
   static async getDisconnect(req, res) {
     try {
       const token = req.headers['x-token'];
+      if (!token) {
+        return res.status(401).send({ error: 'Unauthorized' });
+      }
       const userId = await redisClient.client.get(`auth_${token}`);
       if (!userId) {
         return res.status(401).send({ error: 'Unauthorized' });
@@ -32,8 +38,8 @@ export default class AuthController {
       await redisClient.client.del(`auth_${token}`);
       return res.status(204).send();
     } catch (err) {
-      // eslint-disable-next-line no-undef
-      return next(err);
+      console.error(err);
+      return res.status(500).send({ error: 'Internal Server Error' });
     }
   }
 }
