@@ -4,3 +4,5 @@ node_modules/
 .eslintrc.js
 package-lock.json
 mdb/
+image_upload.py
+image.png
