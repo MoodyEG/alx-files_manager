@@ -28,7 +28,7 @@ export default class AuthController {
       return res.status(200).json({ token });
     } catch (err) {
       console.error(err);
-      return res.status(500).send({ error: 'Internal Server Error' });
+      return res.status(401).send({ error: 'Unauthorized' });
     }
   }
 
@@ -46,7 +46,7 @@ export default class AuthController {
       return res.status(204).send();
     } catch (err) {
       console.error(err);
-      return res.status(500).send({ error: 'Internal Server Error' });
+      return res.status(401).send({ error: 'Unauthorized' });
     }
   }
 }
