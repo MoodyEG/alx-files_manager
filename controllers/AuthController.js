@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import sha1 from 'sha1';
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
@@ -18,7 +18,7 @@ export default class AuthController {
         return res.status(401).send({ error: 'Unauthorized' });
       }
       const user = await dbClient.dataClient.db().collection('users').findOne({ email });
-      if (!user || crypto.createHash('sha1').update(password).digest('hex') !== user.password) {
+      if (!user || sha1(password) !== user.password) {
         return res.status(401).send({ error: 'Unauthorized' });
       }
       const token = uuidv4();

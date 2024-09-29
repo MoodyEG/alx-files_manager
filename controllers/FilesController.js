@@ -172,35 +172,39 @@ export default class FilesController {
   }
 
   static async getFile(req, res) {
-    const { id } = req.params;
-    const token = req.headers['x-token'];
-    let userId;
-    if (token) {
-      userId = await redisClient.get(`auth_${token}`);
-    }
-    const file = await dbClient.dataClient.db().collection('files').findOne({ _id: new ObjectId(id) });
-    if (!file) {
-      return res.status(404).send({ error: 'Not found' });
-    }
-    console.log(file.userId.toString(), userId);
-    if (!file.isPublic) {
-      if (!userId || file.userId.toString() !== userId) {
+    try {
+      const { id } = req.params || '';
+      const token = req.headers['x-token'];
+      let userId;
+      if (token) {
+        userId = await redisClient.get(`auth_${token}`);
+      }
+      const file = await dbClient.dataClient.db().collection('files').findOne({ _id: new ObjectId(id) });
+      if (!file) {
         return res.status(404).send({ error: 'Not found' });
       }
-    }
-    if (file.type === 'folder') {
-      return res.status(400).send({ error: 'A folder doesn\'t have content' });
-    }
-    const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
-    if (!file.localPath || !fileExist) {
+      if (!file.isPublic) {
+        if (!userId || file.userId.toString() !== userId) {
+          return res.status(404).send({ error: 'Not found' });
+        }
+      }
+      if (file.type === 'folder') {
+        return res.status(400).send({ error: 'A folder doesn\'t have content' });
+      }
+      const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
+      if (!file.localPath || !fileExist) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      const type = mime.contentType(file.name);
+      if (!type) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      const data = await fs.readFile(file.localPath);
+      res.setHeader('Content-Type', type);
+      return res.status(200).send(data);
+    } catch (err) {
+      console.error(err);
       return res.status(404).send({ error: 'Not found' });
     }
-    const type = mime.contentType(file.name);
-    if (!type) {
-      return res.status(404).send({ error: 'Not found' });
-    }
-    const data = await fs.readFile(file.localPath);
-    res.setHeader('Content-Type', type);
-    return res.status(200).send(data);
   }
 }

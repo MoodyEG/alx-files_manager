@@ -44,7 +44,7 @@ export default class UsersController {
       return res.send({ email: user.email, id: user._id });
     } catch (err) {
       console.error(err);
-      return res.status(401).send({ error: 'Unauthorized' });
+      return res.status(500).send({ error: 'Internal Server Error' });
     }
   }
 }
