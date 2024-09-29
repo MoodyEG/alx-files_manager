@@ -1,5 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable class-methods-use-this */
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../utils/redis';
@@ -24,11 +22,11 @@ export default class AuthController {
         return res.status(401).send({ error: 'Unauthorized' });
       }
       const token = uuidv4();
-      await redisClient.client.setex(`auth_${token}`, 24 * 60 * 60, user._id.toString());
+      await redisClient.set(`auth_${token}`, user._id.toString(), 24 * 60 * 60);
       return res.status(200).json({ token });
     } catch (err) {
       console.error(err);
-      return res.status(401).send({ error: 'Unauthorized' });
+      return res.status(500).send({ error: 'Internal Server Error' });
     }
   }
 
@@ -46,7 +44,7 @@ export default class AuthController {
       return res.status(204).send();
     } catch (err) {
       console.error(err);
-      return res.status(401).send({ error: 'Unauthorized' });
+      return res.status(500).send({ error: 'Internal Server Error' });
     }
   }
 }
