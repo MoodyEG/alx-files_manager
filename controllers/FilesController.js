@@ -182,9 +182,11 @@ export default class FilesController {
     if (!file) {
       return res.status(404).send({ error: 'Not found' });
     }
-
-    if (!file.isPublic && (!userId || file.userId.toString() !== userId.toString())) {
-      return res.status(404).send({ error: 'Not found' });
+    console.log(file.userId.toString(), userId);
+    if (!file.isPublic) {
+      if (!userId || file.userId.toString() !== userId) {
+        return res.status(404).send({ error: 'Not found' });
+      }
     }
     if (file.type === 'folder') {
       return res.status(400).send({ error: 'A folder doesn t have content' });
