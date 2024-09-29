@@ -8,6 +8,13 @@ import dbClient from '../utils/db';
 export default class AuthController {
   static async getConnect(req, res) {
     try {
+      if (!req.headers.authorization) {
+        return res.status(401).send({ error: 'Unauthorized' });
+      }
+      const authType = req.headers.authorization.split(' ')[0];
+      if (authType !== 'Basic') {
+        return res.status(401).send({ error: 'Unauthorized' });
+      }
       const [email, password] = Buffer.from(req.headers.authorization.split(' ')[1], 'base64').toString().split(':');
       if (!email || !password) {
         return res.status(401).send({ error: 'Unauthorized' });
