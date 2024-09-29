@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable class-methods-use-this */
 import crypto from 'crypto';
-import { uuid } from 'uuidv4';
+import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
@@ -13,7 +13,7 @@ export default class AuthController {
       if (!user || crypto.createHash('sha1').update(password).digest('hex') !== user.password) {
         return res.status(401).send({ error: 'Unauthorized' });
       }
-      const token = uuid();
+      const token = uuidv4();
       await redisClient.client.setex(`auth_${token}`, 24 * 60 * 60, user._id);
       return res.send({ token });
     } catch (err) {
