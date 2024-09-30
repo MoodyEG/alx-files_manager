@@ -191,17 +191,20 @@ export default class FilesController {
       if (file.type === 'folder') {
         return res.status(400).send({ error: 'A folder doesn\'t have content' });
       }
-      const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
+      const fileExist = await fs.fileExist(file.localPath);
+      if (!fileExist) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      // const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
       if (!file.localPath || !fileExist) {
         return res.status(404).send({ error: 'Not found' });
       }
-      const type = mime.contentType(file.name);
+      const type = mime.lookup(file.name);
       if (!type) {
         return res.status(404).send({ error: 'Not found' });
       }
       const data = await fs.readFile(file.localPath);
-      res.header('Content-Type', type);
-      return res.status(200).send(data);
+      return res.header('Content-Type', type).status(200).send(data);
     } catch (err) {
       console.error(err);
       return res.status(404).send({ error: 'Not found' });
