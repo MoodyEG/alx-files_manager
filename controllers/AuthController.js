@@ -36,11 +36,11 @@ export default class AuthController {
       if (!token) {
         return res.status(401).send({ error: 'Unauthorized' });
       }
-      const userId = await redisClient.client.get(`auth_${token}`);
+      const userId = await redisClient.get(`auth_${token}`);
       if (!userId) {
         return res.status(401).send({ error: 'Unauthorized' });
       }
-      await redisClient.client.del(`auth_${token}`);
+      await redisClient.del(`auth_${token}`);
       return res.status(204).send();
     } catch (err) {
       console.error(err);

@@ -200,7 +200,7 @@ export default class FilesController {
         return res.status(404).send({ error: 'Not found' });
       }
       const data = await fs.readFile(file.localPath);
-      res.setHeader('Content-Type', type);
+      res.header('Content-Type', type);
       return res.status(200).send(data);
     } catch (err) {
       console.error(err);
