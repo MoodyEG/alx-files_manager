@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
-import { promises as fs } from 'fs';
+import { promises as fs, existsSync } from 'fs';
 import path from 'path';
 import mime from 'mime-types';
 import redisClient from '../utils/redis';
@@ -191,14 +191,14 @@ export default class FilesController {
       if (file.type === 'folder') {
         return res.status(400).send({ error: 'A folder doesn\'t have content' });
       }
-      const fileExist = await fs.fileExist(file.localPath);
+      if (!file.localPath) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      const fileExist = existsSync(file.localPath);
       if (!fileExist) {
         return res.status(404).send({ error: 'Not found' });
       }
       // const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
-      if (!file.localPath || !fileExist) {
-        return res.status(404).send({ error: 'Not found' });
-      }
       const type = mime.lookup(file.name);
       if (!type) {
         return res.status(404).send({ error: 'Not found' });
