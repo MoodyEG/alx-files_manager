@@ -170,44 +170,44 @@ export default class FilesController {
     delete file.value._id;
     return res.status(200).send(file.value);
   }
+/*
+ * Task 8
+ */
+static async getFile(req, res) {
+    const user = await getUserFromXToken(req);
+    const { id } = req.params;
+    const size = req.query.size || null;
+    const userId = user ? user._id.toString() : '';
+    const fileFilter = {
+      _id: new mongoDBCore.BSON.ObjectId(isValidId(id) ? id : NULL_ID),
+    };
+    const file = await (await dbClient.filesCollection())
+      .findOne(fileFilter);
 
-  static async getFile(req, res) {
-    try {
-      const { id } = req.params;
-      const token = req.headers['x-token'];
-      const file = await dbClient.dataClient.db().collection('files').findOne({ _id: new ObjectId(id) });
-      if (!file) {
-        return res.status(404).send({ error: 'Not found' });
-      }
-      if (!file.isPublic) {
-        if (!token) {
-          return res.status(404).send({ error: 'Not found' });
-        }
-        const userId = await redisClient.get(`auth_${token}`);
-        if (!userId || file.userId.toString() !== userId) {
-          return res.status(404).send({ error: 'Not found' });
-        }
-      }
-      if (file.type === 'folder') {
-        return res.status(400).send({ error: 'A folder doesn\'t have content' });
-      }
-      if (!file.localPath) {
-        return res.status(404).send({ error: 'Not found' });
-      }
-      const fileExist = existsSync(file.localPath);
-      if (!fileExist) {
-        return res.status(404).send({ error: 'Not found' });
-      }
-      // const fileExist = await fs.access(file.localPath).then(() => true).catch(() => false);
-      const type = mime.lookup(file.name);
-      if (!type) {
-        return res.status(404).send({ error: 'Not found' });
-      }
-      const data = await fs.readFile(file.localPath);
-      return res.header('Content-Type', type).status(200).send(data);
-    } catch (err) {
-      console.error(err);
-      return res.status(404).send({ error: 'Not found' });
+    if (!file || (!file.isPublic && (file.userId.toString() !== userId))) {
+      res.status(404).json({ error: 'Not found' });
+      return;
     }
+    if (file.type === VALID_FILE_TYPES.folder) {
+      res.status(400).json({ error: 'A folder doesn\'t have content' });
+      return;
+    }
+    let filePath = file.localPath;
+    if (size) {
+      filePath = `${file.localPath}_${size}`;
+    }
+    if (existsSync(filePath)) {
+      const fileInfo = await statAsync(filePath);
+      if (!fileInfo.isFile()) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+    } else {
+      res.status(404).json({ error: 'Not found' });
+      return;
+    }
+    const absoluteFilePath = await realpathAsync(filePath);
+    res.setHeader('Content-Type', contentType(file.name) || 'text/plain; charset=utf-8');
+    res.status(200).sendFile(absoluteFilePath);
   }
 }
