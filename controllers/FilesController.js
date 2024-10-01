@@ -170,7 +170,7 @@ export default class FilesController {
     delete file.value._id;
     return res.status(200).send(file.value);
   }
-	static async getFile(req, res) {
+  static async getFile(req, res) {
     try {
       const { id } = req.params;
       const token = req.headers['x-token'];
