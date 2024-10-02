@@ -13,14 +13,18 @@ describe('+ DBClient utility', () => {
   });
 
   it('+ Client is alive', () => {
+    // Just checking if the client exists and is alive according to the current implementation
     expect(dbClient.isAlive()).to.equal(true);
   });
 
   it('+ nbUsers returns the correct value', async () => {
-    expect(await dbClient.nbUsers()).to.equal(0);
+    const nbUsers = await dbClient.nbUsers();
+    expect(nbUsers).to.equal(0);
   });
 
   it('+ nbFiles returns the correct value', async () => {
-    expect(await dbClient.nbFiles()).to.equal(0);
+    const nbFiles = await dbClient.nbFiles();
+    expect(nbFiles).to.equal(0);
   });
 });
+
