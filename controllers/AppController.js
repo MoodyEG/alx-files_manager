@@ -1,6 +1,7 @@
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
+// Task 2 Main
 export default class AppController {
   static getHomepage(req, res) {
     res.status(200).send('Hello my friend!');

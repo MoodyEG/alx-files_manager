@@ -4,6 +4,7 @@ import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 export default class UsersController {
+  // Task 3
   static async postNew(req, res) {
     const { email, password } = req.body;
     if (!email) {
@@ -26,6 +27,7 @@ export default class UsersController {
     }
   }
 
+  // Task 4
   static async getMe(req, res) {
     const token = req.headers['x-token'];
     if (!token) {

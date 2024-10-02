@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
+// Task 4 Main
 export default class AuthController {
   static async getConnect(req, res) {
     try {
