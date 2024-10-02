@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import dbClient from './utils/db';
 
 const fileQueue = new Queue('thumbnail generation');
+const userQueue = new Queue('userQueue');
 
 console.log('Starting worker');
 // Task 9 Main
@@ -29,5 +30,20 @@ fileQueue.process(async (job, done) => {
       await fs.writeFile(`${file.localPath}_${size}`, thumbnail);
     }),
   );
+  done();
+});
+
+// Task 11 Main
+userQueue.process(async (job, done) => {
+  const { userId } = job.data;
+  if (!userId) {
+    throw new Error('Missing userId');
+  }
+  const user = await dbClient.dataClient.db().collection('users')
+    .findOne({ _id: ObjectId(userId) });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  console.log(`Welcome ${user.email}!`);
   done();
 });

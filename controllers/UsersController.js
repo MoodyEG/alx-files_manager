@@ -1,3 +1,4 @@
+import Queue from 'bull';
 import crypto from 'crypto';
 import { ObjectId } from 'mongodb';
 import dbClient from '../utils/db';
@@ -20,6 +21,8 @@ export default class UsersController {
       }
       const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
       const result = await dbClient.dataClient.db().collection('users').insertOne({ email, password: hashedPassword });
+      const userQueue = new Queue('userQueue');
+      userQueue.add({ userId: result.insertedId });
       return res.status(201).send({ email, id: result.insertedId });
     } catch (err) {
       console.error(err);
