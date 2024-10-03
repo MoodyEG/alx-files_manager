@@ -5,7 +5,7 @@ import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 export default class UsersController {
-  // Task 3
+  // Task 3 Main Code //
   static async postNew(req, res) {
     const { email, password } = req.body;
     if (!email) {
