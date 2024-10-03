@@ -1,6 +1,6 @@
 import redis from 'redis';
 
-// Task 0 Main
+// Task 0 Main code 
 class RedisClient {
   constructor() {
     this.client = redis.createClient();
