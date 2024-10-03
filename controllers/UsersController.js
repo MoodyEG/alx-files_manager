@@ -30,7 +30,7 @@ export default class UsersController {
     }
   }
 
-  // Task 4 Main Code // 
+  // Task 4 Main Code //
   static async getMe(req, res) {
     const token = req.headers['x-token'];
     if (!token) {

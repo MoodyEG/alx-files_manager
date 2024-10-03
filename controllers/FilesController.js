@@ -7,7 +7,7 @@ import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
 export default class FilesController {
-  // Task 5 Main Codde// 
+  // Task 5 Main Code//
   static async postUpload(req, res) {
     const token = req.headers['x-token'];
     if (!token) {
