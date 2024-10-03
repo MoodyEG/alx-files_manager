@@ -6,7 +6,7 @@ import FilesController from '../controllers/FilesController';
 
 const router = express.Router();
 
-// Task 2
+// Task 2 Main//
 router.get('/', AppController.getHomepage);
 router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
