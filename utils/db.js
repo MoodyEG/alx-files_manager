@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-// Task 1 Main
+// Task 1 Main code
 class DBClient {
   constructor() {
     const dbHost = process.env.DB_HOST || 'localhost';
